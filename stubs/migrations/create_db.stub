@@ -1,0 +1,51 @@
+{{{
+  exports({
+    to: app.makePath('database', 'migrations', prefix + '_create_tags_tables.ts')
+  })
+}}}
+
+import { BaseSchema } from '@adonisjs/lucid/schema'
+
+export default class extends BaseSchema {
+  async up() {
+    /**
+     * TAGS TABLE
+     */
+    this.schema.createTable('tags', (table) => {
+      table.bigIncrements('id')                  // primary key
+      table.string('slug').notNullable().index() // normalized slug
+      table.string('title').nullable()           // human-readable label
+
+      table.timestamp('created_at', { useTz: true })
+      table.timestamp('updated_at', { useTz: true })
+    })
+
+    /**
+     * TAGGABLES PIVOT TABLE
+     */
+    this.schema.createTable('taggables', (table) => {
+      table.bigIncrements('id')
+
+      table.string('taggable_type').notNullable().index()
+      table.bigInteger('taggable_id').unsigned().notNullable().index()
+
+      table
+        .bigInteger('tag_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('tags')
+        .onDelete('CASCADE')
+
+      table.timestamp('created_at', { useTz: true })
+      table.timestamp('updated_at', { useTz: true })
+
+      table.index(['taggable_type', 'taggable_id'])
+    })
+  }
+
+  async down() {
+    this.schema.dropTable('taggables')
+    this.schema.dropTable('tags')
+  }
+}
