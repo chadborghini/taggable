@@ -5,6 +5,7 @@ import { BaseModel } from '@adonisjs/lucid/orm'
 
 import { Tcl } from '../tcl.js'
 import { TaggableModelInterface, ModelIdType } from '../types.js'
+import Tag from '../models/tag.js'
 
 /**
  * hasTags() Mixin
@@ -64,33 +65,30 @@ export function hasTags() {
        *
        * If the tag does not exist, it will be created automatically.
        */
-      async attachTag(name: string) {
-        return Tcl.model(this).attach(name)
+      async attachTag(input: string | string[] | number | number[] | Tag | Tag[]) {
+        return Tcl.model(this).attach(input)
       }
 
       /**
        * Detach a tag from this model.
        * Accepts tag names, slugs, or IDs.
        */
-      async detachTag(name: string) {
-        return Tcl.model(this).detach(name)
+      async detachTag(input?: string | string[] | number | number[] | Tag | Tag[]) {
+        return Tcl.model(this).detach(input)
       }
 
       /**
        * Replace all existing tags with the provided list.
        */
-      async syncTags(names: string[]) {
-        return Tcl.model(this).sync(names)
+      async syncTags(input: string | string[] | number | number[] | Tag | Tag[]) {
+        return Tcl.model(this).sync(input)
       }
 
       /**
-       * Determine whether the model has a given tag.
-       * Comparison is made using slug matching.
+       * Check if tag exists
        */
-      async hasTag(name: string) {
-        const tags = await this.tags()
-        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-        return tags.some((t) => t.slug === slug)
+      async hasTag(input: string | number | Tag) {
+        return Tcl.model(this).hasTag(input)
       }
     }
 

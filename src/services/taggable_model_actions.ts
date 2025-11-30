@@ -160,9 +160,9 @@ export class TaggableModelActions<T extends TaggableModelInterface> {
       .delete()
   }
 
-  async sync(names: string[]) {
+  async sync(input: string | string[] | number | number[] | Tag | Tag[]) {
     await this.detach()
-    await this.attach(names)
+    await this.attach(input)
   }
 
   async loadTags(): Promise<Tag[]> {
@@ -194,5 +194,44 @@ export class TaggableModelActions<T extends TaggableModelInterface> {
       .join(`${TaggableModel.table}`, `${TaggableModel.table}.tag_id`, `${TagModel.table}.id`)
       .where(`${TaggableModel.table}.taggable_type`, modelType)
       .where(`${TaggableModel.table}.taggable_id`, modelId)
+  }
+
+  async hasTag(input: string | number | Tag): Promise<boolean> {
+    const TagModel = this.modelManager.getModel('tag')
+    const TaggableModel = this.modelManager.getModel('taggable')
+
+    const modelId = this.getModelId()
+    const modelType = this.getModelType()
+
+    let tagId: number | null = null
+
+    // Tag instance
+    if (input instanceof Tag) {
+      tagId = Number(input.id)
+    }
+
+    // Number → tag ID
+    else if (typeof input === 'number') {
+      tagId = input
+    }
+
+    // String → slug → find tag
+    else if (typeof input === 'string') {
+      const slug = this.makeSlug(input)
+      const tag = await TagModel.query().where('slug', slug).first()
+      if (!tag) return false
+      tagId = Number(tag.id)
+    } else {
+      throw new Error(`Invalid value passed to hasTag(): ${input}`)
+    }
+
+    // Query pivot table
+    const exists = await TaggableModel.query()
+      .where('taggable_type', modelType)
+      .where('taggable_id', modelId)
+      .where('tag_id', tagId)
+      .first()
+
+    return !!exists
   }
 }
