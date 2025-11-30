@@ -114,14 +114,14 @@ export class TaggableModelActions<T extends TaggableModelInterface> {
     }
   }
 
-  async detach(names?: string | string[]) {
+  async detach(input?: string | string[] | number | number[] | Tag | Tag[]) {
     const TagModel = this.modelManager.getModel('tag')
     const TaggableModel = this.modelManager.getModel('taggable')
 
-    const modelId = this.getModelId()
+    const modelId = Number(this.getModelId()) // <-- FIX
     const modelType = this.getModelType()
 
-    if (!names) {
+    if (!input) {
       await TaggableModel.query()
         .where('taggable_type', modelType)
         .where('taggable_id', modelId)
@@ -129,13 +129,29 @@ export class TaggableModelActions<T extends TaggableModelInterface> {
       return
     }
 
-    const arr = Array.isArray(names) ? names : [names]
-    const slugs = arr.map((n) => this.makeSlug(n))
+    const items = Array.isArray(input) ? input : [input]
+    const tagIds: number[] = []
 
-    const tags = await TagModel.query().whereIn('slug', slugs)
-    if (tags.length === 0) return
+    for (const item of items) {
+      if (item instanceof Tag) {
+        tagIds.push(Number(item.id))
+      } else if (Array.isArray(item)) {
+        await this.detach(item)
+        continue
+      } else if (typeof item === 'number') {
+        tagIds.push(item)
+      } else if (typeof item === 'string') {
+        const slug = this.makeSlug(item)
+        const tag = await TagModel.query().where('slug', slug).first()
+        if (tag) {
+          tagIds.push(Number(tag.id))
+        }
+      } else {
+        throw new Error(`Invalid value passed to detach(): ${item}`)
+      }
+    }
 
-    const tagIds = tags.map((t) => t.id)
+    if (tagIds.length === 0) return
 
     await TaggableModel.query()
       .whereIn('tag_id', tagIds)
@@ -165,5 +181,18 @@ export class TaggableModelActions<T extends TaggableModelInterface> {
     const tagIds = rows.map((r) => r.tagId)
 
     return TagModel.query().whereIn('id', tagIds)
+  }
+
+  tags() {
+    const TagModel = this.modelManager.getModel('tag')
+    const TaggableModel = this.modelManager.getModel('taggable')
+
+    const modelId = this.getModelId()
+    const modelType = this.getModelType()
+
+    return TagModel.query()
+      .join(`${TaggableModel.table}`, `${TaggableModel.table}.tag_id`, `${TagModel.table}.id`)
+      .where(`${TaggableModel.table}.taggable_type`, modelType)
+      .where(`${TaggableModel.table}.taggable_id`, modelId)
   }
 }
