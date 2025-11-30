@@ -52,12 +52,14 @@ import { Tcl } from '@chadborghini/taggable'
 const post = await Post.find(1)     
 
 // via Tcl
+// parameters can be string, id, or Tag model
 const attach = await Tcl.model(post).attach('tag')
 const detach = await Tcl.model(post).detach('tag')
 const sync = await Tcl.model(post).sync(['tag1', 'tag2'])
 const getTags = await Tcl.model(post).getTags()
 
 // via mixin
+// parameters can be string, id, or Tag model
 const attach = await post.attachTag('tag')
 const detach = await post.detachTag('tag')
 const sync = await post.syncTags(['tag1', 'tag2'])
