@@ -1,4 +1,4 @@
-# @chadborghini/taggable
+# @chadborghini/adonisjs-taggable
 
 > Polymorphic tagging system for AdonisJS v6+  
 > Add powerful, reusable tag functionality to any model with minimal setup.
