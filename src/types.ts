@@ -23,8 +23,8 @@ export type TclModelManagerInterface = {
  */
 export interface TagInterface {
   id: ModelIdType
-  slug: string
-  title: string | null
+  // slug: string
+  name: string | null
   createdAt: any
   updatedAt: any
 }

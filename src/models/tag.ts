@@ -1,11 +1,22 @@
 // src/models/tag.ts
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeSave, column } from '@adonisjs/lucid/orm'
 import { ModelIdType, TagInterface } from '../types.js'
 import { MorphMap } from '@holoyan/morph-map-js'
 
 @MorphMap('tags') // you can choose another alias
 export default class Tag extends BaseModel implements TagInterface {
+  @beforeSave()
+  static generateSlug(tag: Tag) {
+    if (tag.$dirty.name) {
+      tag.slug = tag
+        .name!.toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+    }
+  }
+
   getModelId(): ModelIdType {
     return this.id
   }
@@ -14,10 +25,10 @@ export default class Tag extends BaseModel implements TagInterface {
   declare id: ModelIdType
 
   @column()
-  declare slug: string
+  declare protected slug: string
 
   @column()
-  declare title: string | null
+  declare name: string | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

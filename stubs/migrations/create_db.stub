@@ -14,7 +14,7 @@ export default class extends BaseSchema {
     this.schema.createTable('tags', (table) => {
       table.bigIncrements('id')                  // primary key
       table.string('slug').notNullable().index() // normalized slug
-      table.string('title').nullable()           // human-readable label
+      table.string('name').nullable()           // human-readable label
 
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })

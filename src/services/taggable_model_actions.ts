@@ -45,8 +45,8 @@ export class TaggableModelActions<T extends TaggableModelInterface> {
 
     if (!tag) {
       tag = await TagModel.create({
-        slug,
-        title: name,
+        // slug,
+        name,
       })
     }
 
