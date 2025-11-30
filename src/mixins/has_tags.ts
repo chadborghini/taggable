@@ -45,7 +45,7 @@ export function hasTags() {
        * NOTE:
        * This does NOT return Tag[] directly — it returns a QueryBuilder.
        */
-      async tags() {
+      tags() {
         return Tcl.model(this).tags()
       }
 
