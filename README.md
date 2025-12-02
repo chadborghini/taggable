@@ -15,11 +15,11 @@
 ## Installation
 
   ```sh
-  npm install @chadborghini/taggable
+  npm install @chadborghini/adonisjs-taggable
   ```
   Next publish config files
   ```sh
-  node ace configure @chadborghini/taggable
+  node ace configure @chadborghini/adonisjs-taggable
   ```
   this will create migration file in the ```database/migrations``` directory
   Next run migration
@@ -30,8 +30,8 @@
 
 ```ts
 //import morphmap, mixin and interface
-import { hasTags, TaggableMorphMap } from '@chadborghini/taggable'
-import { TaggableModelInterface } from '@chadborghini/taggable/types'
+import { hasTags, TaggableMorphMap } from '@chadborghini/adonisjs-taggable'
+import { TaggableModelInterface } from '@chadborghini/adonisjs-taggable/types'
 
 @TaggableMorphMap('posts')
 export default class Post extends compose(BaseModel, hasTags()) implements TaggableModelInterface {
@@ -46,7 +46,7 @@ export default class Post extends compose(BaseModel, hasTags()) implements Tagga
 ## Basic Usage
 ```ts
 import Post from '#models/post'
-import { Tcl } from '@chadborghini/taggable'
+import { Tcl } from '@chadborghini/adonisjs-taggable'
 
 // 2 ways to attach either via mixin or Tcl
 const post = await Post.find(1)     
